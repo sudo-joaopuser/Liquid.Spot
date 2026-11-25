@@ -25,8 +25,8 @@ The code was ported from Jetpack Compose to Android Views.
 ## Echo-Music, GPL-3.0
 According to BitChord's headers, the origin of the `GlassNavBar` used as a reference.
 
-## Kyant0/backdrop, Apache-2.0
-https://github.com/Kyant0/backdrop
+## Kyant0/Backdrop, Apache-2.0
+https://github.com/Kyant0/AndroidLiquidGlass
 
 Copyright 2025 Kyant.
 
@@ -36,7 +36,7 @@ The AGSL shaders for the refraction lens and the rim highlight (`xposed/ui/glass
 BitChord took the selection pill motion constants from this library, according to the header of `GlassSelectionPill.kt`.
 
 ## SpotifyPlus, MIT
-https://github.com/sudo-joaopuser/SpotifyPlus
+https://github.com/Xposed-Modules-Repo/com.lenerd46.spotifyplus
 
 Copyright (c) 2025 Devon Shoutz.
 
@@ -56,7 +56,7 @@ https://huggingface.co/facebook/wav2vec2-base-960h
 Speech recognition model by Meta AI. AI syllable sync uses the ONNX conversion published at https://huggingface.co/Xenova/wav2vec2-base-960h (`onnx/model_quantized.onnx` and `vocab.json`). The model is not bundled in the APK: the app only downloads it when you tap Download, or uses the file you import. Syllable alignment runs on the device and the song's audio never leaves it.
 
 ## ONNX Runtime, MIT
-https://github.com/microsoft/onnxruntime
+https://onnxruntime.ai
 
 Copyright (c) Microsoft Corporation. The APK ships only the Java classes of `onnxruntime-android`. The native libraries are downloaded from the official AAR on Maven Central together with the model, only when you ask for it.
 

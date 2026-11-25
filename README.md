@@ -98,9 +98,9 @@ LiquidSpot has no analytics and no account. It only goes online for:
 
 Built on the shoulders of:
 - [BitChord](https://github.com/kushagrasinghx/BitChord) — glass, floating bar and lyrics ideas.
-- [Kyant0/backdrop](https://github.com/Kyant0/backdrop) — lens and rim shaders.
-- [SpotifyPlus](https://github.com/sudo-joaopuser/SpotifyPlus) — skeleton and inspiration.
-- [wav2vec2-base-960h](https://huggingface.co/facebook/wav2vec2-base-960h) and [ONNX Runtime](https://github.com/microsoft/onnxruntime) — AI syllable sync.
+- [Kyant0/Backdrop](https://github.com/Kyant0/AndroidLiquidGlass) — lens and rim shaders.
+- [SpotifyPlus](https://github.com/Xposed-Modules-Repo/com.lenerd46.spotifyplus) — skeleton and inspiration.
+- [wav2vec2-base-960h](https://huggingface.co/facebook/wav2vec2-base-960h) and [ONNX Runtime](https://onnxruntime.ai) — AI syllable sync.
 
 Full credits and third-party licenses are in [NOTICE.md](NOTICE.md).
 
