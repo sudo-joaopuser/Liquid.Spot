@@ -135,4 +135,7 @@
     <string name="about_libraries_title">ライブラリ</string>
     <string name="about_license">GNU GPL v3 のフリーソフトウェアです。</string>
     <string name="about_disclaimer">LiquidSpot は Spotify とは無関係です。</string>
+    <string name="category_pages">ページ</string>
+    <string name="feature_liquid_pages_title">Liquid Glass ページ</string>
+    <string name="feature_liquid_pages_summary">アーティスト、アルバム、プレイリストのページにガラスの戻る・共有・その他ボタン、アルバムとプレイリストの上部に大きくフェードするジャケット、曲の間に細い線を表示します。</string>
 </resources>

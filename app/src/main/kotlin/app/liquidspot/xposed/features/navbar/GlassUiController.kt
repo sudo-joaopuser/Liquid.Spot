@@ -10,7 +10,11 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
+import android.widget.ImageView
 import app.liquidspot.xposed.features.debug.UiDumper
+import app.liquidspot.xposed.features.pages.ComposePageController
+import app.liquidspot.xposed.features.pages.PageController
+import app.liquidspot.xposed.features.pages.PageStyler
 import app.liquidspot.xposed.features.player.IconButton
 import app.liquidspot.xposed.features.player.Texts
 import app.liquidspot.xposed.features.player.PlayerController
@@ -106,6 +110,9 @@ class GlassUiController(private val activity: Activity) {
     }
 
     fun stop() {
+        decor.removeCallbacks(pageScan)
+        pages.values.toList().forEach { it.stop() }
+        pages.clear()
         decor.viewTreeObserver.removeOnGlobalLayoutListener(layoutListener)
         decor.viewTreeObserver.removeOnPreDrawListener(preDrawListener)
         overlay?.let { (it.parent as? ViewGroup)?.removeView(it) }
@@ -125,6 +132,7 @@ class GlassUiController(private val activity: Activity) {
         }
         for (state in miniPlayers.values) state.drawable.surface.style = GlassUi.style
         for (player in players.values) player.applySettings()
+        for (page in pages.values) page.applySettings()
         decor.invalidate()
     }
 
@@ -148,6 +156,61 @@ class GlassUiController(private val activity: Activity) {
         skipNextDraw = true
     }
 
+    private val pages = WeakHashMap<View, PageStyler>()
+    private val listEntityId = activity.resources.getIdentifier("list_entity_root", "id", activity.packageName)
+    private val listContainerId = activity.resources.getIdentifier("container", "id", activity.packageName)
+    private val listComposeId = activity.resources.getIdentifier("compose_view", "id", activity.packageName)
+    private var pageScanQueued = false
+    private val pageScan = Runnable {
+        pageScanQueued = false
+        if (!failed) runCatching { detectPages() }.onFailure { Logger.e("Páginas Liquid Glass: erro ao procurar a página", it) }
+    }
+
+    private fun detectPages() {
+        val backs = ArrayList<ImageView>()
+        val hosts = ArrayList<ViewGroup>()
+        val lists = ArrayList<ViewGroup>()
+        collectPageViews(decor, backs, hosts, lists)
+        for (host in hosts) {
+            for (i in 0 until host.childCount) host.getChildAt(i).takeIf { it.visibility == View.VISIBLE }?.let { UiDumper.dumpOnce(it, "página aberta") }
+        }
+        for (back in backs) {
+            val controller = pages[back] ?: pageRootOf(back)?.let { page ->
+                PageController(activity, back, page) { GlassUi.style }.also { pages[back] = it }
+            } ?: continue
+            controller.tryStart()
+        }
+        for (root in lists) {
+            val compose = root.findViewById<View>(listComposeId) ?: continue
+            val host = root.findViewById<ViewGroup>(listContainerId) ?: root
+            pages.getOrPut(compose) { ComposePageController(activity, compose, host) { GlassUi.style } }.tryStart()
+        }
+    }
+
+    private fun collectPageViews(view: View, backs: MutableList<ImageView>, hosts: MutableList<ViewGroup>, lists: MutableList<ViewGroup>) {
+        if (view.visibility != View.VISIBLE || view === overlay) return
+        if (view is ImageView && view.javaClass.simpleName == BACK_BUTTON_CLASS) {
+            backs += view
+            return
+        }
+        if (view is ViewGroup) {
+            if (view.javaClass.name == FRAGMENT_HOST_CLASS) hosts += view
+            if (listEntityId != 0 && view.id == listEntityId) lists += view
+            for (i in 0 until view.childCount) collectPageViews(view.getChildAt(i), backs, hosts, lists)
+        }
+    }
+
+    private fun pageRootOf(view: View): ViewGroup? {
+        var child = view
+        var parent = view.parent
+        while (parent is ViewGroup) {
+            if (parent.javaClass.name == FRAGMENT_HOST_CLASS) return child as? ViewGroup
+            child = parent
+            parent = parent.parent
+        }
+        return null
+    }
+
     private fun ensureBackdrop(): BackdropSource? {
         backdrop?.let { if (it.source.isAttachedToWindow) return it }
         val source = bars.find<View>(decor, bars.coordinator) ?: return null
@@ -160,6 +223,10 @@ class GlassUiController(private val activity: Activity) {
             if (current == null || !current.isAttachedToWindow) setupNavBar()
         }
         if (GlassUi.miniPlayerEnabled) styleMiniPlayer()
+        if (GlassUi.pagesEnabled && !pageScanQueued) {
+            pageScanQueued = true
+            decor.postDelayed(pageScan, PAGE_SCAN_MS)
+        }
         if (GlassUi.playerEnabled) {
             runCatching { detectPlayer() }.onFailure { Logger.e("Player Liquid Glass: erro ao procurar a página do player", it) }
         }
@@ -503,6 +570,9 @@ class GlassUiController(private val activity: Activity) {
         const val MINIMAL_TEXT_SCALE = 0.85f
         const val HORIZONTAL_RATIO = 1.2f
         const val RETRY_INTERVAL_MS = 500L
+        const val PAGE_SCAN_MS = 150L
+        const val BACK_BUTTON_CLASS = "BackButtonView"
+        const val FRAGMENT_HOST_CLASS = "androidx.fragment.app.FragmentContainerView"
         const val MAX_NAV_ATTEMPTS = 20
         const val POLL_INTERVAL_MS = 200L
         const val NONE_SELECTED_REFRESH = 5

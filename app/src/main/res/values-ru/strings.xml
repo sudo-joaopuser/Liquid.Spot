@@ -135,4 +135,7 @@
     <string name="about_libraries_title">Библиотеки</string>
     <string name="about_license">Свободное ПО под лицензией GNU GPL v3.</string>
     <string name="about_disclaimer">LiquidSpot не связан со Spotify.</string>
+    <string name="category_pages">Страницы</string>
+    <string name="feature_liquid_pages_title">Страницы Liquid Glass</string>
+    <string name="feature_liquid_pages_summary">Стеклянные кнопки «Назад», «Поделиться» и «Ещё» на страницах исполнителя, альбома и плейлиста, большая обложка с плавным переходом вверху альбомов и плейлистов и тонкие линии между треками.</string>
 </resources>

@@ -135,4 +135,7 @@
     <string name="about_libraries_title">Pustaka</string>
     <string name="about_license">Perangkat lunak bebas di bawah GNU GPL v3.</string>
     <string name="about_disclaimer">LiquidSpot tidak berafiliasi dengan Spotify.</string>
+    <string name="category_pages">Halaman</string>
+    <string name="feature_liquid_pages_title">Halaman Liquid Glass</string>
+    <string name="feature_liquid_pages_summary">Tombol kaca kembali, bagikan, dan opsi lainnya di halaman artis, album, dan playlist, sampul besar yang memudar di atas album dan playlist, serta garis tipis di antara lagu.</string>
 </resources>

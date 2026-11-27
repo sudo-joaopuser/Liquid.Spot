@@ -10,6 +10,8 @@ import android.graphics.drawable.Drawable
 import app.liquidspot.core.Constants
 
 enum class PlayerIcon(val spotifyName: String?) {
+    BACK(null),
+    SHARE(null),
     MORE("encore_icon_more_android_24"),
     MORE_HORIZONTAL(null),
     ADD("encore_icon_plus_alt_24"),
@@ -60,6 +62,16 @@ class Glyph(private val icon: PlayerIcon) : Drawable() {
         canvas.scale(b.width() / 24f, b.height() / 24f)
         path.reset()
         when (icon) {
+            PlayerIcon.BACK -> {
+                path.moveTo(15f, 4.5f); path.lineTo(7.5f, 12f); path.lineTo(15f, 19.5f)
+                canvas.drawPath(path, stroke)
+            }
+            PlayerIcon.SHARE -> {
+                path.moveTo(12f, 14f); path.lineTo(12f, 3f)
+                path.moveTo(8f, 7f); path.lineTo(12f, 3f); path.lineTo(16f, 7f)
+                path.moveTo(9f, 10f); path.lineTo(6.5f, 10f); path.lineTo(6.5f, 20.5f); path.lineTo(17.5f, 20.5f); path.lineTo(17.5f, 10f); path.lineTo(15f, 10f)
+                canvas.drawPath(path, stroke)
+            }
             PlayerIcon.MORE, PlayerIcon.MORE_HORIZONTAL -> for (x in listOf(5f, 12f, 19f)) canvas.drawCircle(x, 12f, 1.8f, fill)
             PlayerIcon.ADD -> {
                 canvas.drawCircle(12f, 12f, 9.5f, stroke)

@@ -33,7 +33,7 @@ class FeaturesActions(
     val onAccentColor: (Int) -> Unit,
 )
 
-private val GLASS_CATEGORIES = setOf(FeatureCategory.BAR, FeatureCategory.PLAYER)
+private val GLASS_CATEGORIES = setOf(FeatureCategory.BAR, FeatureCategory.PAGES, FeatureCategory.PLAYER)
 
 private fun SettingsUiState.isOn(feature: FeatureInfo) = features[feature.id] ?: feature.defaultEnabled
 

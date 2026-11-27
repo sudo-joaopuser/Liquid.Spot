@@ -19,6 +19,8 @@ object GlassUi {
         private set
     var playerEnabled = false
         private set
+    var pagesEnabled = false
+        private set
 
     var layout = NavBarLayout.DEFAULT
         private set
@@ -52,6 +54,11 @@ object GlassUi {
 
     fun enablePlayer(ctx: HookContext) {
         playerEnabled = true
+        install(ctx)
+    }
+
+    fun enablePages(ctx: HookContext) {
+        pagesEnabled = true
         install(ctx)
     }
 

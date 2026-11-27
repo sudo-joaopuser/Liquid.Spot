@@ -36,6 +36,13 @@ An LSPosed module that brings an iOS 26 inspired look, a new full-screen player 
   <sub>Glass bar and mini player · Shrunk on scroll</sub>
 </p>
 
+<p align="center">
+  <img src="assets/screenshots/artist.webp" alt="Artist page with glass buttons" width="46%">
+  <img src="assets/screenshots/album.webp" alt="Album page with glass buttons and lines between songs" width="46%">
+  <br>
+  <sub>Artist page · Album page</sub>
+</p>
+
 ## Features
 
 ### 🫧 Liquid Glass everywhere
@@ -43,6 +50,7 @@ An LSPosed module that brings an iOS 26 inspired look, a new full-screen player 
 - **Glass lens** — hold and drag across the tabs to lift a lens that magnifies and refracts what's under it.
 - **Shrink on scroll** — scrolling down turns the tabs into a circle and tucks the mini player into the bar, just like iOS 26.
 - **Mini player** — a glass pill, with an optional compact mode (cover, song, pause and next).
+- **Artist, album and playlist pages** — glass back, share and "…" buttons, and thin lines between songs.
 - **Glass sheets and dialogs** — Connect, the "…" menus and dialogs get a blurred backdrop.
 - **Four styles** — Liquid (blur + lens refraction), Frosted, Matte and Solid.
 

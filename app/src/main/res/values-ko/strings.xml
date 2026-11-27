@@ -135,4 +135,7 @@
     <string name="about_libraries_title">라이브러리</string>
     <string name="about_license">GNU GPL v3 자유 소프트웨어입니다.</string>
     <string name="about_disclaimer">LiquidSpot은 Spotify와 관련이 없습니다.</string>
+    <string name="category_pages">페이지</string>
+    <string name="feature_liquid_pages_title">Liquid Glass 페이지</string>
+    <string name="feature_liquid_pages_summary">아티스트, 앨범, 플레이리스트 페이지에 유리 뒤로·공유·더보기 버튼, 앨범과 플레이리스트 상단에 크게 흐려지는 커버, 곡 사이에 가는 선을 표시합니다.</string>
 </resources>

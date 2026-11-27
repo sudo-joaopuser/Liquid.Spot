@@ -135,4 +135,7 @@
     <string name="about_libraries_title">Kütüphaneler</string>
     <string name="about_license">GNU GPL v3 altında özgür yazılım.</string>
     <string name="about_disclaimer">LiquidSpot\'un Spotify ile bir bağlantısı yoktur.</string>
+    <string name="category_pages">Sayfalar</string>
+    <string name="feature_liquid_pages_title">Liquid Glass sayfaları</string>
+    <string name="feature_liquid_pages_summary">Sanatçı, albüm ve çalma listesi sayfalarında cam geri, paylaş ve diğer seçenekler düğmeleri, albüm ve çalma listelerinin üstünde solan büyük bir kapak ve şarkılar arasında ince çizgiler.</string>
 </resources>

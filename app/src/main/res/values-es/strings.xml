@@ -135,4 +135,7 @@
     <string name="about_libraries_title">Bibliotecas</string>
     <string name="about_license">Software libre bajo la GNU GPL v3.</string>
     <string name="about_disclaimer">LiquidSpot no está afiliado a Spotify.</string>
+    <string name="category_pages">Páginas</string>
+    <string name="feature_liquid_pages_title">Páginas Liquid Glass</string>
+    <string name="feature_liquid_pages_summary">Botones de cristal para volver, compartir y más opciones en las páginas de artista, álbum y playlist, una portada grande que se desvanece arriba en álbumes y playlists y líneas finas entre las canciones.</string>
 </resources>

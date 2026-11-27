@@ -5,6 +5,7 @@ import app.liquidspot.R
 
 enum class FeatureCategory(@param:StringRes val title: Int) {
     BAR(R.string.category_bar),
+    PAGES(R.string.category_pages),
     PLAYER(R.string.category_player),
     THEME(R.string.category_theme),
     DEBUG(R.string.category_debug),
@@ -45,6 +46,14 @@ object FeatureCatalog {
         defaultEnabled = true,
     )
 
+    val LIQUID_PAGES = FeatureInfo(
+        id = "liquid_pages",
+        category = FeatureCategory.PAGES,
+        title = R.string.feature_liquid_pages_title,
+        summary = R.string.feature_liquid_pages_summary,
+        defaultEnabled = true,
+    )
+
     val GLASS_SHEETS = FeatureInfo(
         id = "glass_sheets",
         category = FeatureCategory.PLAYER,
@@ -78,7 +87,7 @@ object FeatureCatalog {
     )
 
     val all: List<FeatureInfo> = listOf(
-        LIQUID_NAVBAR, LIQUID_MINIPLAYER, LIQUID_PLAYER, GLASS_SHEETS, KEEP_RUNNING,
+        LIQUID_NAVBAR, LIQUID_MINIPLAYER, LIQUID_PAGES, LIQUID_PLAYER, GLASS_SHEETS, KEEP_RUNNING,
         AMOLED_THEME, ACCENT_COLOR,
     )
 }

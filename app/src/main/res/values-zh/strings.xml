@@ -135,4 +135,7 @@
     <string name="about_libraries_title">库</string>
     <string name="about_license">基于 GNU GPL v3 的自由软件。</string>
     <string name="about_disclaimer">LiquidSpot 与 Spotify 无关。</string>
+    <string name="category_pages">页面</string>
+    <string name="feature_liquid_pages_title">Liquid Glass 页面</string>
+    <string name="feature_liquid_pages_summary">在艺人、专辑和歌单页面显示玻璃质感的返回、分享和更多按钮，在专辑和歌单顶部显示渐隐的大封面，并在歌曲之间显示细线。</string>
 </resources>

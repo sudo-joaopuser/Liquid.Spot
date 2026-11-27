@@ -37,6 +37,8 @@ private class Strings(
     val aiUnavailable: String,
     val aiUnsupported: String,
     val aiNoAudio: String,
+    val back: String,
+    val share: String,
 )
 
 object Texts {
@@ -75,6 +77,8 @@ object Texts {
         aiUnavailable = "The AI couldn't start on this device",
         aiUnsupported = "The AI doesn't support this lyrics' alphabet",
         aiNoAudio = "No song audio reached the AI. Spotify is playing through its native audio engine on this phone",
+        back = "Back",
+        share = "Share",
     )
 
     private val PT = Strings(
@@ -112,6 +116,8 @@ object Texts {
         aiUnavailable = "A IA não conseguiu iniciar neste aparelho",
         aiUnsupported = "A IA não suporta o alfabeto desta letra",
         aiNoAudio = "O áudio da música não chegou à IA. O Spotify está tocando pelo motor de áudio nativo neste celular",
+        back = "Voltar",
+        share = "Compartilhar",
     )
 
     private val ES = Strings(
@@ -149,6 +155,8 @@ object Texts {
         aiUnavailable = "La IA no pudo iniciarse en este dispositivo",
         aiUnsupported = "La IA no admite el alfabeto de esta letra",
         aiNoAudio = "El audio de la canción no llegó a la IA. Spotify está sonando con su motor de audio nativo en este teléfono",
+        back = "Atrás",
+        share = "Compartir",
     )
 
     private val FR = Strings(
@@ -186,6 +194,8 @@ object Texts {
         aiUnavailable = "L'IA n'a pas pu démarrer sur cet appareil",
         aiUnsupported = "L'IA ne prend pas en charge l'alphabet de ces paroles",
         aiNoAudio = "L'audio du titre n'est pas parvenu à l'IA. Spotify joue via son moteur audio natif sur ce téléphone",
+        back = "Retour",
+        share = "Partager",
     )
 
     private val DE = Strings(
@@ -223,6 +233,8 @@ object Texts {
         aiUnavailable = "Die KI konnte auf diesem Gerät nicht starten",
         aiUnsupported = "Die KI unterstützt das Alphabet dieses Songtexts nicht",
         aiNoAudio = "Der Songton hat die KI nicht erreicht. Spotify spielt auf diesem Telefon über seine native Audio-Engine",
+        back = "Zurück",
+        share = "Teilen",
     )
 
     private val IT = Strings(
@@ -260,6 +272,8 @@ object Texts {
         aiUnavailable = "L'IA non è riuscita ad avviarsi su questo dispositivo",
         aiUnsupported = "L'IA non supporta l'alfabeto di questo testo",
         aiNoAudio = "L'audio del brano non è arrivato all'IA. Spotify riproduce con il motore audio nativo su questo telefono",
+        back = "Indietro",
+        share = "Condividi",
     )
 
     private val RU = Strings(
@@ -297,6 +311,8 @@ object Texts {
         aiUnavailable = "ИИ не удалось запустить на этом устройстве",
         aiUnsupported = "ИИ не поддерживает алфавит этого текста",
         aiNoAudio = "Звук трека не дошёл до ИИ. Spotify на этом телефоне играет через нативный аудиодвижок",
+        back = "Назад",
+        share = "Поделиться",
     )
 
     private val TR = Strings(
@@ -334,6 +350,8 @@ object Texts {
         aiUnavailable = "Yapay zekâ bu cihazda başlatılamadı",
         aiUnsupported = "Yapay zekâ bu sözlerin alfabesini desteklemiyor",
         aiNoAudio = "Şarkının sesi yapay zekâya ulaşmadı. Spotify bu telefonda yerel ses motoruyla çalıyor",
+        back = "Geri",
+        share = "Paylaş",
     )
 
     private val ID = Strings(
@@ -371,6 +389,8 @@ object Texts {
         aiUnavailable = "AI tidak dapat dimulai di perangkat ini",
         aiUnsupported = "AI tidak mendukung abjad lirik ini",
         aiNoAudio = "Audio lagu tidak sampai ke AI. Spotify memutar lewat mesin audio native di ponsel ini",
+        back = "Kembali",
+        share = "Bagikan",
     )
 
     private val JA = Strings(
@@ -408,6 +428,8 @@ object Texts {
         aiUnavailable = "この端末では AI を起動できませんでした",
         aiUnsupported = "この歌詞の文字は AI が対応していません",
         aiNoAudio = "曲の音声が AI に届きませんでした。この端末では Spotify がネイティブの音声エンジンで再生しています",
+        back = "戻る",
+        share = "共有",
     )
 
     private val KO = Strings(
@@ -445,6 +467,8 @@ object Texts {
         aiUnavailable = "이 기기에서 AI를 시작할 수 없습니다",
         aiUnsupported = "AI가 이 가사의 문자를 지원하지 않습니다",
         aiNoAudio = "곡의 오디오가 AI에 전달되지 않았습니다. 이 휴대폰에서 Spotify가 네이티브 오디오 엔진으로 재생 중입니다",
+        back = "뒤로",
+        share = "공유",
     )
 
     private val ZH = Strings(
@@ -482,6 +506,8 @@ object Texts {
         aiUnavailable = "AI 无法在此设备上启动",
         aiUnsupported = "AI 不支持这首歌词的文字",
         aiNoAudio = "歌曲音频没有传到 AI。Spotify 在这部手机上通过原生音频引擎播放",
+        back = "返回",
+        share = "分享",
     )
 
     private val BY_LANGUAGE = mapOf(
@@ -526,4 +552,6 @@ object Texts {
     val aiUnavailable get() = current.aiUnavailable
     val aiUnsupported get() = current.aiUnsupported
     val aiNoAudio get() = current.aiNoAudio
+    val back get() = current.back
+    val share get() = current.share
 }

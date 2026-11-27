@@ -1,11 +1,12 @@
 package app.liquidspot.xposed.ui.glass
 
 import app.liquidspot.xposed.theme.SpotifyTheme
+import android.graphics.Canvas
 import android.graphics.RenderNode
 import android.view.View
 import android.view.ViewTreeObserver
 
-class BackdropSource(val source: View) {
+class BackdropSource(val source: View, private val content: ((Canvas) -> Unit)? = null) {
     val node = RenderNode("LiquidSpotBackdrop")
 
     var isRecording = false
@@ -49,7 +50,7 @@ class BackdropSource(val source: View) {
         isRecording = true
         try {
             canvas.drawColor(baseColor)
-            source.draw(canvas)
+            content?.invoke(canvas) ?: source.draw(canvas)
         } finally {
             isRecording = false
             node.endRecording()
