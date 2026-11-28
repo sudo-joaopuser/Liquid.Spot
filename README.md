@@ -22,7 +22,7 @@ An LSPosed module that brings an iOS 26 inspired look, a new full-screen player 
 ## Screenshots
 
 <p align="center">
-  <img src="assets/screenshots/player.webp" alt="Liquid Glass player" width="30%">
+  <img src="assets/screenshots/player-glass.webp" alt="Liquid Glass player" width="30%">
   <img src="assets/screenshots/lyrics.webp" alt="Synced lyrics with controls" width="30%">
   <img src="assets/screenshots/lyrics-focus.webp" alt="Synced lyrics in focus mode" width="30%">
   <br>
@@ -45,7 +45,7 @@ An LSPosed module that brings an iOS 26 inspired look, a new full-screen player 
 
 <p align="center">
   <img src="assets/screenshots/top-blur.webp" alt="Blurred top bar on the artist page" width="30%">
-  <img src="assets/screenshots/playlist-blur.webp" alt="Blurred top bar on a playlist with the play button on top" width="30%">
+  <img src="assets/screenshots/playlist-lofi.webp" alt="Blurred top bar on a playlist with the play button on top" width="30%">
   <img src="assets/screenshots/video-blur.webp" alt="A music video blurred under the top bar" width="30%">
   <br>
   <sub>Blurred top bar · Playlists · Videos under the bar</sub>
