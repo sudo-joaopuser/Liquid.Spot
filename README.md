@@ -43,6 +43,14 @@ An LSPosed module that brings an iOS 26 inspired look, a new full-screen player 
   <sub>Artist page · Album page</sub>
 </p>
 
+<p align="center">
+  <img src="assets/screenshots/top-blur.webp" alt="Blurred top bar on the artist page" width="30%">
+  <img src="assets/screenshots/playlist-blur.webp" alt="Blurred top bar on a playlist with the play button on top" width="30%">
+  <img src="assets/screenshots/video-blur.webp" alt="A music video blurred under the top bar" width="30%">
+  <br>
+  <sub>Blurred top bar · Playlists · Videos under the bar</sub>
+</p>
+
 ## Features
 
 ### 🫧 Liquid Glass everywhere
@@ -50,7 +58,7 @@ An LSPosed module that brings an iOS 26 inspired look, a new full-screen player 
 - **Glass lens** — hold and drag across the tabs to lift a lens that magnifies and refracts what's under it.
 - **Shrink on scroll** — scrolling down turns the tabs into a circle and tucks the mini player into the bar, just like iOS 26.
 - **Mini player** — a glass pill, with an optional compact mode (cover, song, pause and next).
-- **Artist, album and playlist pages** — glass back, share and "…" buttons, and thin lines between songs.
+- **Artist, album and playlist pages** — glass back, share and "…" buttons, thin lines between songs, and a real blurred top bar instead of the album-color band. Songs, covers and even music videos blur behind it as you scroll.
 - **Glass sheets and dialogs** — Connect, the "…" menus and dialogs get a blurred backdrop.
 - **Four styles** — Liquid (blur + lens refraction), Frosted, Matte and Solid.
 
@@ -70,7 +78,7 @@ An LSPosed module that brings an iOS 26 inspired look, a new full-screen player 
 - **AI syllable sync** (optional download) — listens to the song on your device and times line-synced lyrics syllable by syllable, using wav2vec2. Audio never leaves your phone.
 
 ### 🎨 Make it yours
-- **AMOLED theme** — Spotify's dark greys become pure black.
+- **AMOLED theme** — always on: Spotify's dark greys become pure black.
 - **Accent color** — swap Spotify's green for a preset or any `#RRGGBB`.
 - **Keep Spotify running** — music keeps playing after clearing Spotify from recent apps.
 
