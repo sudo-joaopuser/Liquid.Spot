@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">ミニプレーヤーを浮かぶガラスのピルにします。</string>
     <string name="feature_liquid_player_title">Liquid Glass プレーヤー</string>
     <string name="feature_liquid_player_summary">ぼかしたジャケット、ガラスのボタン、曲の Canvas 動画、14 のソースから取得する同期歌詞を備えた全画面プレーヤー。広告とポッドキャストは Spotify のプレーヤーのままです。</string>
-    <string name="feature_amoled_title">AMOLED テーマ</string>
-    <string name="feature_amoled_summary">Spotify の暗い背景を真っ黒にし、ガラスも暗くします。反映するには Spotify を再起動してください。</string>
     <string name="feature_accent_title">アクセントカラーを変更</string>
     <string name="feature_accent_summary">Spotify の緑（ボタン、アクティブなアイコン、進行状況）を好きな色に置き換えます。ガラスの画面にも反映されます。</string>
     <string name="pref_accent_title">アクセントカラー</string>

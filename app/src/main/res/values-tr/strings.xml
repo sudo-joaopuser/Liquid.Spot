@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">Mini oynatıcıyı yüzen bir cam kapsüle dönüştürür.</string>
     <string name="feature_liquid_player_title">Liquid Glass oynatıcı</string>
     <string name="feature_liquid_player_summary">Bulanık kapaklı, cam düğmeli, şarkının Canvas videosu ve 14 kaynaktan senkronize sözlerle tam ekran oynatıcı. Reklamlar ve podcast\'ler Spotify oynatıcısında kalır.</string>
-    <string name="feature_amoled_title">AMOLED tema</string>
-    <string name="feature_amoled_summary">Spotify\'ın koyu arka planlarını tam siyah yapar, cam da koyulaşır. Uygulamak için Spotify\'ı yeniden başlatın.</string>
     <string name="feature_accent_title">Vurgu rengini değiştir</string>
     <string name="feature_accent_summary">Spotify\'ın yeşilini (düğmeler, etkin simgeler, ilerleme) seçtiğiniz renkle değiştirir; cam ekranlar da dahil.</string>
     <string name="pref_accent_title">Vurgu rengi</string>

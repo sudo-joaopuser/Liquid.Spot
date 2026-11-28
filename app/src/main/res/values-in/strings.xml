@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">Mengubah pemutar mini menjadi kapsul kaca mengambang.</string>
     <string name="feature_liquid_player_title">Pemutar Liquid Glass</string>
     <string name="feature_liquid_player_summary">Pemutar layar penuh dengan sampul buram, tombol kaca, video Canvas lagu, dan lirik tersinkron dari 14 sumber. Iklan dan podcast tetap memakai pemutar Spotify.</string>
-    <string name="feature_amoled_title">Tema AMOLED</string>
-    <string name="feature_amoled_summary">Membuat latar gelap Spotify menjadi hitam pekat, dan kaca juga ikut lebih gelap. Mulai ulang Spotify untuk menerapkan.</string>
     <string name="feature_accent_title">Ganti warna aksen</string>
     <string name="feature_accent_summary">Mengganti hijau Spotify (tombol, ikon aktif, progres) dengan warna pilihan Anda, termasuk di layar kaca.</string>
     <string name="pref_accent_title">Warna aksen</string>

@@ -5,6 +5,7 @@ import app.liquidspot.core.Constants
 import app.liquidspot.core.PrefKeys
 import app.liquidspot.xposed.feature.FeatureManager
 import app.liquidspot.xposed.feature.Features
+import app.liquidspot.xposed.theme.AmoledTheme
 import app.liquidspot.xposed.features.debug.UiDumper
 import app.liquidspot.xposed.util.CrashLogger
 import app.liquidspot.xposed.util.Logger
@@ -52,6 +53,7 @@ class LiquidSpotModule : XposedModule() {
         val ctx = HookContext(this, appInfo, param.classLoader, prefs)
         runCatching { CrashLogger.install(ctx.hooks) }.onFailure { Logger.w("Não foi possível instalar o registro de travamentos", it) }
 
+        runCatching { AmoledTheme.install(ctx) }.onFailure { Logger.e("Tema AMOLED: falha ao instalar", it) }
         try {
             FeatureManager(Features.all).installAll(ctx)
         } catch (t: Throwable) {

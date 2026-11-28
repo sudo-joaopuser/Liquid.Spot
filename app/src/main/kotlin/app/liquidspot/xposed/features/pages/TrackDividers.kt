@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import kotlin.math.abs
 import kotlin.math.max
 
-class TrackDividers(private val list: ViewGroup) : Drawable() {
+class TrackDividers(val list: ViewGroup) : Drawable() {
     private fun dp(v: Float) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, list.resources.displayMetrics)
 
     private val paint = Paint().apply {

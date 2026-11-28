@@ -16,7 +16,6 @@ import android.util.TypedValue
 import android.view.View
 import androidx.annotation.RequiresApi
 import app.liquidspot.core.GlassStyle
-import app.liquidspot.xposed.theme.SpotifyTheme
 import app.liquidspot.xposed.util.Logger
 
 class GlassSurface(private val owner: View) {
@@ -29,16 +28,61 @@ class GlassSurface(private val owner: View) {
         }
 
     var backdrop: BackdropSource? = null
+        set(value) {
+            if (field === value) return
+            field?.removeListener(refresher)
+            field = value
+            value?.addListener(refresher)
+        }
 
-    var tintColor: Int = if (SpotifyTheme.amoled) 0x80000000.toInt() else 0x66121212
+    var tintColor: Int = 0x80000000.toInt()
 
-    var solidColor: Int = if (SpotifyTheme.amoled) 0xFF0A0A0A.toInt() else 0xFF242424.toInt()
+    var solidColor: Int = 0xFF0A0A0A.toInt()
 
-    var matteColor: Int = if (SpotifyTheme.amoled) 0xB3000000.toInt() else 0xB3121212.toInt()
+    var matteColor: Int = 0xB3000000.toInt()
 
     var shadowEnabled = true
 
+    var saturation = DEFAULT_SATURATION
+        set(value) {
+            if (field != value) {
+                field = value
+                cachedEffectKey = null
+            }
+        }
+
     private val node = RenderNode("LiquidSpotGlass")
+    private var recordedWidth = 0
+    private var recordedHeight = 0
+    private var recordedX = 0f
+    private var recordedY = 0f
+    private val refresher: () -> Unit = { refresh() }
+
+    private var recordedPad = 0f
+    private var recordedLeft = 0f
+    private var recordedTop = 0f
+
+    private fun refresh() {
+        val source = backdrop ?: return
+        if (recordedWidth == 0 || !owner.isAttachedToWindow) return
+        owner.getLocationInWindow(ownerLocation)
+        source.locationInWindow(sourceLocation)
+        recordedX = recordedPad - (ownerLocation[0] - sourceLocation[0] + recordedLeft)
+        recordedY = recordedPad - (ownerLocation[1] - sourceLocation[1] + recordedTop)
+        recordNode(source)
+    }
+
+    private fun recordNode(source: BackdropSource) {
+        node.setPosition(0, 0, recordedWidth, recordedHeight)
+        val rc = node.beginRecording()
+        try {
+            rc.translate(recordedX, recordedY)
+            rc.drawRenderNode(source.node)
+        } finally {
+            node.endRecording()
+        }
+    }
+
     private val path = Path()
     private val ownerLocation = IntArray(2)
     private val sourceLocation = IntArray(2)
@@ -134,14 +178,14 @@ class GlassSurface(private val owner: View) {
         val dx = ownerLocation[0] - sourceLocation[0] + rect.left
         val dy = ownerLocation[1] - sourceLocation[1] + rect.top
 
-        node.setPosition(0, 0, (w + 2 * pad).toInt(), (h + 2 * pad).toInt())
-        val rc = node.beginRecording()
-        try {
-            rc.translate(pad - dx, pad - dy)
-            rc.drawRenderNode(source.node)
-        } finally {
-            node.endRecording()
-        }
+        recordedWidth = (w + 2 * pad).toInt()
+        recordedHeight = (h + 2 * pad).toInt()
+        recordedX = pad - dx
+        recordedY = pad - dy
+        recordedPad = pad
+        recordedLeft = rect.left
+        recordedTop = rect.top
+        recordNode(source)
         node.setRenderEffect(effectFor(style, w, h, radius, pad, blurPx))
 
         canvas.save()
@@ -152,9 +196,9 @@ class GlassSurface(private val owner: View) {
     }
 
     private fun effectFor(style: GlassStyle, w: Float, h: Float, radius: Float, pad: Float, blurPx: Float): RenderEffect {
-        val key = "$style:$w:$h:$radius:$pad"
+        val key = "$style:$w:$h:$radius:$pad:$saturation"
         if (key == cachedEffectKey) return cachedEffect!!
-        val saturate = RenderEffect.createColorFilterEffect(SATURATION_FILTER)
+        val saturate = RenderEffect.createColorFilterEffect(if (saturation == DEFAULT_SATURATION) SATURATION_FILTER else ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(saturation) }))
         var effect = RenderEffect.createBlurEffect(blurPx, blurPx, saturate, Shader.TileMode.CLAMP)
         if (style == GlassStyle.LIQUID && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !shadersBroken) {
             runCatching {
@@ -210,6 +254,7 @@ class GlassSurface(private val owner: View) {
         const val FROST_BLUR_DP = 16f
         const val LENS_DP = 24f
 
-        val SATURATION_FILTER = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(1.5f) })
+        const val DEFAULT_SATURATION = 1.5f
+        val SATURATION_FILTER = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(DEFAULT_SATURATION) })
     }
 }

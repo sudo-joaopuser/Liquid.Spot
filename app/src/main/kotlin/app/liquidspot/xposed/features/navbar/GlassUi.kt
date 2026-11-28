@@ -44,6 +44,7 @@ object GlassUi {
 
     fun enableNavBar(ctx: HookContext) {
         navBarEnabled = true
+        NavTabsHook.install(ctx)
         install(ctx)
     }
 

@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">把迷你播放器变成悬浮的玻璃胶囊。</string>
     <string name="feature_liquid_player_title">Liquid Glass 播放器</string>
     <string name="feature_liquid_player_summary">全屏播放器，带模糊封面、玻璃按钮、歌曲的 Canvas 视频，以及来自 14 个来源的同步歌词。广告和播客仍使用 Spotify 的播放器。</string>
-    <string name="feature_amoled_title">AMOLED 主题</string>
-    <string name="feature_amoled_summary">把 Spotify 的深色背景变成纯黑，玻璃也会更暗。重启 Spotify 后生效。</string>
     <string name="feature_accent_title">更改强调色</string>
     <string name="feature_accent_summary">把 Spotify 的绿色（按钮、激活的图标、进度）换成你选择的颜色，玻璃界面也会一起变。</string>
     <string name="pref_accent_title">强调色</string>

@@ -6,13 +6,13 @@ import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.util.TypedValue
+import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.LinearLayout
 import app.liquidspot.core.GlassStyle
-import app.liquidspot.xposed.a11y.A11yBridge
 import app.liquidspot.xposed.a11y.TextMatcher
 import app.liquidspot.xposed.features.debug.UiDumper
 import app.liquidspot.xposed.features.player.IconButton
@@ -20,7 +20,6 @@ import app.liquidspot.xposed.features.player.Texts
 import app.liquidspot.xposed.ui.PlayerIcon
 import app.liquidspot.xposed.ui.glass.BackdropSource
 import app.liquidspot.xposed.ui.glass.GlassDrawable
-import app.liquidspot.xposed.theme.SpotifyTheme
 import app.liquidspot.xposed.util.Logger
 import java.lang.ref.WeakReference
 import kotlin.math.abs
@@ -61,13 +60,12 @@ class PageController(
     private val rightView: View? = bar?.findViewById(id("action_bar_right_view"))
 
     private val moreLabels = TextMatcher.formats(
-        A11yBridge.spotifyStrings(
-            res,
+        listOf(
             "show_context_menu_content_description_album", "show_context_menu_content_description_playlist",
             "show_context_menu_content_description_artist", "show_context_menu_content_description_show",
             "show_context_menu_content_description_user", "content_description_context_menu",
-            "entity_action_context_menu_default_content_description",
-        ),
+            "entity_action_context_menu_default_content_description", "context_menu_click_action_label",
+        ).mapNotNull { name -> res.getIdentifier(name, "string", activity.packageName).takeIf { it != 0 }?.let { runCatching { res.getString(it) }.getOrNull() } },
     )
 
     private var hero: PageHero? = null
@@ -83,12 +81,33 @@ class PageController(
     private val origin = IntArray(2)
     private val location = IntArray(2)
     private val backLocation = IntArray(2)
+    private val playVisible = android.graphics.Rect()
+    private val pillLocation = IntArray(2)
+    private val playButtons = ArrayList<WeakReference<View>>()
 
     private val preDraw = ViewTreeObserver.OnPreDrawListener {
         guard("quadro") { keepStyled() }
         true
     }
-    private val layoutListener = ViewTreeObserver.OnGlobalLayoutListener { guard("layout") { scan() } }
+    private var lastScan = 0L
+    private var scanQueued = false
+    private val queuedScan = Runnable {
+        scanQueued = false
+        guard("layout") { throttledScan() }
+    }
+    private val layoutListener = ViewTreeObserver.OnGlobalLayoutListener { guard("layout") { throttledScan() } }
+
+    private fun throttledScan() {
+        val now = SystemClock.uptimeMillis()
+        val wait = SCAN_INTERVAL_MS - (now - lastScan)
+        if (wait <= 0) {
+            lastScan = now
+            scan()
+        } else if (!scanQueued) {
+            scanQueued = true
+            back.postDelayed(queuedScan, wait)
+        }
+    }
     private val attach = object : View.OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(v: View) = listen(true)
         override fun onViewDetachedFromWindow(v: View) = listen(false)
@@ -128,7 +147,9 @@ class PageController(
 
     override fun stop() {
         stopped = true
+        videos.stop()
         listen(false)
+        back.removeCallbacks(queuedScan)
         back.removeOnAttachStateChangeListener(attach)
     }
 
@@ -162,9 +183,14 @@ class PageController(
         if (back.background !== backChrome) back.background = backChrome
         backBg?.let { if (it.visibility != View.GONE) it.visibility = View.GONE }
         placePill()
+        hidePillUnderPlay()
+        keepBlurScrim()
+        extendListUnderBar()
+        trackScroll()
+        watchVideos()
         if (hero == null) appBar?.let { header ->
             if (header.background !== baseBackground) header.background = baseBackground
-            baseBackground.color = if (SpotifyTheme.amoled) 0xFF000000.toInt() else 0xFF121212.toInt()
+            baseBackground.color = baseColor()
         }
         hero?.let { current ->
             val header = appBar ?: return@let
@@ -176,6 +202,126 @@ class PageController(
         rightView?.let { if (it.alpha != 0f) it.alpha = 0f }
         for (ref in menuButtons) ref.get()?.let { if (it.visibility == View.VISIBLE) it.visibility = View.INVISIBLE }
         for (ref in shareButtons) ref.get()?.let { if (it.visibility != View.GONE) it.visibility = View.GONE }
+    }
+
+    private val toolbarView: View? = bar?.findViewById(id("toolbar"))
+
+    private fun baseColor(): Int = 0xFF000000.toInt()
+
+    private var extendedList = WeakReference<View>(null)
+    private var listBasePadding = 0
+    private var listExtension = 0
+    private var listOffset = 0
+    private val raised = ArrayList<WeakReference<View>>()
+    private val videos = VideoFrames { back.invalidate() }
+
+    private fun extendListUnderBar() {
+        val target = list.get() as? ViewGroup ?: return
+        val toolbar = toolbarView ?: return
+        if (toolbar.height == 0 || !target.isLaidOut) return
+        val params = target.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+        val parent = target.parent as? ViewGroup ?: return
+        if (parent.javaClass.name.contains("Coordinator")) return
+        val known = extendedList.get() === target
+        if (!known) {
+            if (params.topMargin != 0) return
+            if (target.top != 0 && parent !is android.widget.LinearLayout) return
+            extendedList = WeakReference(target)
+            listBasePadding = target.paddingTop
+            raised.clear()
+            var offset = 0
+            var child: View = target
+            var level = child.parent as? ViewGroup
+            while (level != null && !level.javaClass.name.contains("Coordinator")) {
+                offset += child.top
+                for (i in 0 until level.childCount) {
+                    val sibling = level.getChildAt(i)
+                    if (sibling === child || sibling.visibility != View.VISIBLE || sibling.bottom > child.top) continue
+                    sibling.translationZ = RAISED_Z
+                    sibling.outlineProvider = null
+                    raised += WeakReference(sibling)
+                }
+                child = level
+                level = level.parent as? ViewGroup
+            }
+            if (level == null) return
+            listOffset = offset
+        }
+        for (ref in raised) ref.get()?.let { strip ->
+            val glass = strip.background as? BlurScrim ?: BlurScrim(strip, backdrop).also {
+                strip.background = it
+                clearSolidBackgrounds(strip)
+            }
+            glass.alpha = stuckAlpha(strip, toolbar)
+        }
+        val extension = toolbar.height + listOffset
+        if (known && params.topMargin == -listExtension && target.paddingTop == listBasePadding + listExtension && listExtension == extension) return
+        val delta = extension - (if (known) listExtension else 0)
+        listExtension = extension
+        target.clipToPadding = false
+        target.setPadding(target.paddingLeft, listBasePadding + extension, target.paddingRight, target.paddingBottom)
+        params.topMargin = -extension
+        target.layoutParams = params
+        if (delta != 0 && target.childCount > 0) target.post { target.scrollBy(0, -delta) }
+    }
+
+    private fun stuckAlpha(strip: View, toolbar: View): Int {
+        if (strip.height == 0) return 0
+        toolbar.getLocationInWindow(location)
+        val barBottom = location[1] + toolbar.height
+        strip.getLocationInWindow(location)
+        val gap = location[1] - barBottom
+        return if (gap <= STUCK_TOLERANCE) 255 else 0
+    }
+
+    private fun clearSolidBackgrounds(view: View) {
+        if (view !is ViewGroup) return
+        for (i in 0 until view.childCount) {
+            val child = view.getChildAt(i)
+            val solid = child.background as? android.graphics.drawable.ColorDrawable
+            if (solid != null && android.graphics.Color.alpha(solid.color) == 255) child.background = null
+            clearSolidBackgrounds(child)
+        }
+    }
+
+    private fun watchVideos() {
+        val toolbar = toolbarView ?: return
+        val strips = raised.sumOf { it.get()?.height ?: 0 }
+        videos.limit = toolbar.height + strips + dp(VIDEO_MARGIN_DP).roundToInt()
+        videos.start()
+    }
+
+    private fun collectSurfaces(view: View, out: MutableList<android.view.SurfaceView>) {
+        if (view is android.view.SurfaceView) {
+            out += view
+            return
+        }
+        if (view is ViewGroup) for (i in 0 until view.childCount) collectSurfaces(view.getChildAt(i), out)
+    }
+
+    private fun keepBlurScrim() {
+        val toolbar = toolbarView ?: return
+        val current = toolbar.background ?: return
+        if (current is BlurScrim) return
+        val blur = BlurScrim(toolbar, backdrop)
+        blur.alpha = current.alpha
+        toolbar.background = blur
+    }
+
+    private fun hidePillUnderPlay() {
+        if (pill.width == 0) return
+        pill.getLocationInWindow(pillLocation)
+        val radius = dp(PLAY_RADIUS_DP)
+        val covered = playButtons.any { ref ->
+            val play = ref.get() ?: return@any false
+            if (!play.isShown || play.alpha < 0.05f || play.width == 0) return@any false
+            if (appBar?.let { contains(it, play) } == true) return@any false
+            if (!play.getGlobalVisibleRect(playVisible) || playVisible.height() < radius) return@any false
+            playVisible.right > pillLocation[0] && playVisible.left < pillLocation[0] + pill.width &&
+                playVisible.top < pillLocation[1] + pill.height && playVisible.bottom > pillLocation[1]
+        }
+        val wanted = if (covered) View.INVISIBLE else View.VISIBLE
+        if (pill.visibility != wanted) pill.visibility = wanted
     }
 
     private fun placePill() {
@@ -206,10 +352,12 @@ class PageController(
         if (top != null) collect(top, MENU_BUTTON, menuButtons, skipLists = true) { inTopRow(it) }
         appBar?.let { header -> collect(header, MENU_BUTTON, menuButtons, skipLists = true) { true } }
         collect(page, SHARE_BUTTON, shareButtons, skipLists = false) { true }
+        collect(page, PLAY_BUTTON, playButtons, skipLists = false) { true }
+        videos.update(ArrayList<android.view.SurfaceView>().also { collectSurfaces(page, it) })
         if (list.get()?.isAttachedToWindow != true) {
             (largestList(page) as? ViewGroup)?.let { found ->
                 list = WeakReference(found)
-                val drawable = dividers ?: TrackDividers(found).also { dividers = it }
+                val drawable = dividers?.takeIf { it.list === found } ?: TrackDividers(found).also { dividers = it }
                 if (found.foreground !== drawable) found.foreground = drawable
             }
         }
@@ -254,26 +402,118 @@ class PageController(
     private fun recordBehindButtons(canvas: Canvas) {
         page.getLocationInWindow(origin)
         drawExcept(canvas, page, root = true)
+        videos.draw(canvas, origin[0], origin[1])
     }
 
     private fun drawExcept(canvas: Canvas, group: ViewGroup, root: Boolean) {
-        if (!root) group.background?.let { background -> drawAt(canvas, group) { background.draw(canvas) } }
+        if (!root) group.background?.let { background -> drawAt(canvas, group, shift = if (group === appBar) -listScroll() else 0f) { background.draw(canvas) } }
         for (i in 0 until group.childCount) {
             val child = group.getChildAt(i)
-            if (child === back || child === pill || child === backBg || child === rightView || menuButtons.any { it.get() === child }) continue
+            if (child === toolbarView || child === back || child === pill || child === backBg || child === rightView || menuButtons.any { it.get() === child } || playButtons.any { it.get() === child }) continue
             if (child.visibility != View.VISIBLE || child.alpha <= 0f || child.width == 0) continue
             if (child is ViewGroup && contains(child, back)) {
                 drawExcept(canvas, child, root = false)
+            } else if (child is ViewGroup && leadsToList(child)) {
+                drawTowardList(canvas, child)
+            } else if (isHeaderContent(group, child)) {
+                drawAt(canvas, child, shift = headerShift(child)) { child.draw(canvas) }
             } else {
-                drawAt(canvas, child) { child.draw(canvas) }
+                drawPlain(canvas, child)
             }
         }
     }
 
-    private inline fun drawAt(canvas: Canvas, view: View, block: () -> Unit) {
+    private fun isHeaderContent(group: ViewGroup, child: View): Boolean {
+        val header = appBar ?: return false
+        return group !== header && contains(header, child) && child.height >= header.height - HEADER_TOLERANCE
+    }
+
+    private fun headerShift(child: View): Float {
+        val header = appBar ?: return 0f
+        header.getLocationInWindow(location)
+        val top = location[1]
+        child.getLocationInWindow(location)
+        return (top - location[1]).toFloat() - listScroll()
+    }
+
+    private val lastTops = java.util.IdentityHashMap<View, Int>()
+    private val nowTops = java.util.IdentityHashMap<View, Int>()
+    private var trackedScroll = 0f
+
+    private var trackedList = WeakReference<View>(null)
+
+    private fun trackScroll() {
+        val target = list.get() as? ViewGroup ?: return
+        if (trackedList.get() !== target) {
+            trackedList = WeakReference(target)
+            lastTops.clear()
+            trackedScroll = if (headerCollapsed() && target.canScrollVertically(-1)) (appBar?.height ?: 0).toFloat() else 0f
+        }
+        var delta = 0
+        var matched = false
+        nowTops.clear()
+        for (i in 0 until target.childCount) {
+            val item = target.getChildAt(i)
+            nowTops[item] = item.top
+            if (!matched) lastTops[item]?.let { delta = it - item.top; matched = true }
+        }
+        if (matched) trackedScroll += delta
+        if (!headerCollapsed() || !target.canScrollVertically(-1)) trackedScroll = 0f
+        lastTops.clear()
+        lastTops.putAll(nowTops)
+    }
+
+    private fun listScroll(): Float = trackedScroll
+
+    private fun headerCollapsed(): Boolean {
+        val header = appBar ?: return false
+        val toolbar = toolbarView ?: return false
+        header.getLocationInWindow(location)
+        val headerBottom = location[1] + header.height
+        toolbar.getLocationInWindow(location)
+        return headerBottom <= location[1] + toolbar.height + STUCK_TOLERANCE
+    }
+
+
+    private fun leadsToList(group: ViewGroup): Boolean {
+        val target = list.get() ?: return false
+        return group === target || contains(group, target)
+    }
+
+    private fun drawTowardList(canvas: Canvas, group: ViewGroup) {
+        group.background?.let { background -> drawAt(canvas, group) { background.draw(canvas) } }
+        val isTarget = group === list.get()
+        for (i in 0 until group.childCount) {
+            val child = group.getChildAt(i)
+            if (child.visibility != View.VISIBLE || child.alpha <= 0f || child.width == 0) continue
+            if (raised.any { it.get() === child }) continue
+            if (!isTarget && child is ViewGroup && leadsToList(child)) {
+                drawTowardList(canvas, child)
+            } else {
+                drawPlain(canvas, child)
+            }
+        }
+    }
+
+    private fun drawPlain(canvas: Canvas, view: View) {
+        if (view is android.view.SurfaceView) return
+        if (view is ViewGroup && videos.inside(view)) {
+            view.background?.let { background -> drawAt(canvas, view) { background.draw(canvas) } }
+            for (i in 0 until view.childCount) {
+                val child = view.getChildAt(i)
+                if (child.visibility != View.VISIBLE || child.alpha <= 0f || child.width == 0) continue
+                drawPlain(canvas, child)
+            }
+            view.foreground?.let { foreground -> drawAt(canvas, view) { foreground.draw(canvas) } }
+            return
+        }
+        drawAt(canvas, view) { view.draw(canvas) }
+    }
+
+    private inline fun drawAt(canvas: Canvas, view: View, shift: Float = 0f, block: () -> Unit) {
         view.getLocationInWindow(location)
         val x = (location[0] - origin[0]).toFloat()
-        val y = (location[1] - origin[1]).toFloat()
+        val y = (location[1] - origin[1]).toFloat() + shift
         val save = if (view.alpha < 1f) {
             canvas.saveLayerAlpha(x, y, x + view.width, y + view.height, (view.alpha * 255).roundToInt())
         } else {
@@ -300,13 +540,15 @@ class PageController(
 
     private fun openMenu() {
         for (ref in menuButtons) ref.get()?.takeIf { it.isAttachedToWindow }?.let { if (it.performClick()) return }
-        rightView?.let { right ->
-            val target = A11yBridge.collect(right, maxItems = 20).firstOrNull { it.clickable }?.clickableTarget()
-            if (target?.click() == true) return
-        }
-        val items = A11yBridge.collect(page, maxItems = 400, exclude = { it === pill })
-        if (A11yBridge.find(items, moreLabels)?.clickableTarget()?.click() == true) return
+        rightView?.let { right -> firstClickable(right)?.let { if (it.performClick()) return } }
+        if (ComposeHooks.click(ComposeHooks.actionIn(appBar ?: page) { moreLabels.matches(it) })) return
         Logger.w("Página: botão \"…\" do Spotify não encontrado")
+    }
+
+    private fun firstClickable(view: View): View? {
+        if (view.isClickable && view.isEnabled) return view
+        if (view is ViewGroup) for (i in 0 until view.childCount) firstClickable(view.getChildAt(i))?.let { return it }
+        return null
     }
 
     private fun share() {
@@ -347,6 +589,10 @@ class PageController(
 
     private companion object {
         const val BUTTON_DP = 48f
+        const val RAISED_Z = 1f
+        const val STUCK_TOLERANCE = 2
+        const val HEADER_TOLERANCE = 2
+        const val VIDEO_MARGIN_DP = 64f
         const val GLASS_INSET_DP = 2f
         const val BACK_ICON_DP = 22f
         const val PILL_W_DP = 100f
@@ -354,5 +600,8 @@ class PageController(
         const val SQUARE_ART_MAX = 0.8f
         const val MENU_BUTTON = "ContextMenuButton"
         const val SHARE_BUTTON = "ShareButton"
+        const val PLAY_BUTTON = "PlayButtonView"
+        const val PLAY_RADIUS_DP = 24f
+        const val SCAN_INTERVAL_MS = 400L
     }
 }

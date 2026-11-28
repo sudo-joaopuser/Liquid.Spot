@@ -4,11 +4,9 @@ import app.liquidspot.core.FeatureCatalog
 import app.liquidspot.xposed.HookContext
 import app.liquidspot.xposed.feature.Feature
 
-object AmoledThemeFeature : Feature {
-    override val info = FeatureCatalog.AMOLED_THEME
-
-    override fun install(ctx: HookContext) {
-        SpotifyTheme.enableAmoled(ctx)
+object AmoledTheme {
+    fun install(ctx: HookContext) {
+        SpotifyTheme.install(ctx)
         AmoledGradients.install(ctx.hooks)
     }
 }

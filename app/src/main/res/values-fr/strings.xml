@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">Transforme le mini-lecteur en pilule de verre flottante.</string>
     <string name="feature_liquid_player_title">Lecteur Liquid Glass</string>
     <string name="feature_liquid_player_summary">Lecteur plein écran avec pochette floutée, boutons en verre, la vidéo Canvas du titre et des paroles synchronisées de 14 sources. Les pubs et les podcasts gardent le lecteur de Spotify.</string>
-    <string name="feature_amoled_title">Thème AMOLED</string>
-    <string name="feature_amoled_summary">Rend les fonds sombres de Spotify noir pur, et le verre devient plus sombre aussi. Redémarrez Spotify pour l’appliquer.</string>
     <string name="feature_accent_title">Changer la couleur d’accent</string>
     <string name="feature_accent_summary">Remplace le vert de Spotify (boutons, icônes actives, progression) par la couleur de votre choix, y compris sur les écrans en verre.</string>
     <string name="pref_accent_title">Couleur d’accent</string>

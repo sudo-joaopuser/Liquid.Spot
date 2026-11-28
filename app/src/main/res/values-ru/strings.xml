@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">Превращает мини-плеер в плавающую стеклянную капсулу.</string>
     <string name="feature_liquid_player_title">Плеер Liquid Glass</string>
     <string name="feature_liquid_player_summary">Полноэкранный плеер с размытой обложкой, стеклянными кнопками, видео Canvas трека и синхронным текстом из 14 источников. Реклама и подкасты остаются в плеере Spotify.</string>
-    <string name="feature_amoled_title">Тема AMOLED</string>
-    <string name="feature_amoled_summary">Делает тёмные фоны Spotify полностью чёрными, а стекло тоже темнеет. Перезапустите Spotify, чтобы применить.</string>
     <string name="feature_accent_title">Изменить акцентный цвет</string>
     <string name="feature_accent_summary">Заменяет зелёный цвет Spotify (кнопки, активные значки, прогресс) на выбранный вами, в том числе на стеклянных экранах.</string>
     <string name="pref_accent_title">Акцентный цвет</string>

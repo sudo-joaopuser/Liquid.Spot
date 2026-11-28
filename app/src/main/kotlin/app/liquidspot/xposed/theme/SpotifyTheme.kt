@@ -23,10 +23,6 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 object SpotifyTheme {
     @Volatile
-    var amoled = false
-        private set
-
-    @Volatile
     var accent = ThemePalette.SPOTIFY_GREEN
         private set
 
@@ -36,15 +32,11 @@ object SpotifyTheme {
     @Volatile
     private var values = IntArray(0)
 
-    private var amoledEnabled = false
     private var accentEnabled = false
     private var hooksInstalled = false
     private var listening = false
 
-    fun enableAmoled(ctx: HookContext) {
-        amoledEnabled = true
-        configure(ctx)
-    }
+    fun install(ctx: HookContext) = configure(ctx)
 
     fun enableAccent(ctx: HookContext) {
         accentEnabled = true
@@ -96,12 +88,11 @@ object SpotifyTheme {
     }
 
     private fun rebuild(ctx: HookContext) {
-        amoled = amoledEnabled
         accent = if (accentEnabled) ctx.prefs.getInt(PrefKeys.ACCENT_COLOR, ThemePalette.SPOTIFY_GREEN) else ThemePalette.SPOTIFY_GREEN
-        val palette = ThemePalette.build(amoled, if (accentEnabled) accent else null).toSortedMap()
+        val palette = ThemePalette.build(if (accentEnabled) accent else null).toSortedMap()
         values = palette.values.toIntArray()
         keys = palette.keys.toIntArray()
-        Logger.i("Tema: AMOLED=$amoled destaque=${ThemePalette.toHex(accent)} (${palette.size} cores trocadas)")
+        Logger.i("Tema: AMOLED destaque=${ThemePalette.toHex(accent)} (${palette.size} cores trocadas)")
     }
 
     private fun installHooks(ctx: HookContext) {

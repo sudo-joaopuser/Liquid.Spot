@@ -62,14 +62,6 @@ object FeatureCatalog {
         defaultEnabled = true,
     )
 
-    val AMOLED_THEME = FeatureInfo(
-        id = "amoled_theme",
-        category = FeatureCategory.THEME,
-        title = R.string.feature_amoled_title,
-        summary = R.string.feature_amoled_summary,
-        defaultEnabled = false,
-    )
-
     val ACCENT_COLOR = FeatureInfo(
         id = "accent_color",
         category = FeatureCategory.THEME,
@@ -88,6 +80,6 @@ object FeatureCatalog {
 
     val all: List<FeatureInfo> = listOf(
         LIQUID_NAVBAR, LIQUID_MINIPLAYER, LIQUID_PAGES, LIQUID_PLAYER, GLASS_SHEETS, KEEP_RUNNING,
-        AMOLED_THEME, ACCENT_COLOR,
+        ACCENT_COLOR,
     )
 }

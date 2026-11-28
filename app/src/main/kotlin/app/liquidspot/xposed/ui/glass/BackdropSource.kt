@@ -1,38 +1,49 @@
 package app.liquidspot.xposed.ui.glass
 
-import app.liquidspot.xposed.theme.SpotifyTheme
 import android.graphics.Canvas
 import android.graphics.RenderNode
 import android.view.View
 import android.view.ViewTreeObserver
 
-class BackdropSource(val source: View, private val content: ((Canvas) -> Unit)? = null) {
+class BackdropSource(
+    val source: View,
+    private val autoRecord: Boolean = true,
+    private val content: ((Canvas) -> Unit)? = null,
+) {
     val node = RenderNode("LiquidSpotBackdrop")
 
     var isRecording = false
         private set
 
-    var baseColor = if (SpotifyTheme.amoled) 0xFF000000.toInt() else 0xFF121212.toInt()
+    var baseColor = 0xFF000000.toInt()
 
     private val clients = LinkedHashSet<View>()
+    private val listeners = ArrayList<() -> Unit>()
     private val location = IntArray(2)
-    private val preDraw = ViewTreeObserver.OnPreDrawListener {
-        record()
-        true
+    private val onDraw = ViewTreeObserver.OnDrawListener {
+        if (source.isShown) record()
     }
     private var observer: ViewTreeObserver? = null
 
     fun addClient(view: View) {
         if (clients.add(view) && clients.size == 1) {
-            observer = source.viewTreeObserver.also { it.addOnPreDrawListener(preDraw) }
+            if (autoRecord) observer = source.viewTreeObserver.also { it.addOnDrawListener(onDraw) }
         }
     }
 
     fun removeClient(view: View) {
         if (clients.remove(view) && clients.isEmpty()) {
-            observer?.takeIf { it.isAlive }?.removeOnPreDrawListener(preDraw)
+            observer?.takeIf { it.isAlive }?.removeOnDrawListener(onDraw)
             observer = null
         }
+    }
+
+    fun addListener(listener: () -> Unit) {
+        if (listener !in listeners) listeners += listener
+    }
+
+    fun removeListener(listener: () -> Unit) {
+        listeners -= listener
     }
 
     fun locationInWindow(out: IntArray) {
@@ -48,13 +59,22 @@ class BackdropSource(val source: View, private val content: ((Canvas) -> Unit)? 
         node.setPosition(0, 0, w, h)
         val canvas = node.beginRecording(w, h)
         isRecording = true
+        val previous = activeCanvas
+        activeCanvas = canvas
         try {
             canvas.drawColor(baseColor)
             content?.invoke(canvas) ?: source.draw(canvas)
         } finally {
             isRecording = false
+            activeCanvas = previous
             node.endRecording()
         }
-        for (client in clients) client.invalidate()
+        for (listener in listeners) listener()
+    }
+
+    companion object {
+        private var activeCanvas: Canvas? = null
+
+        fun isBackdropCanvas(canvas: Any?): Boolean = canvas != null && canvas === activeCanvas
     }
 }

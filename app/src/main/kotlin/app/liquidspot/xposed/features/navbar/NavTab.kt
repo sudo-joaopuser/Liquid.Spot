@@ -22,12 +22,9 @@ enum class NavTab(
     PREMIUM("", "encore_icon_spotify_logo_24", "encore_icon_spotify_logo_24"),
     ;
 
-    fun titles(res: Resources): List<String> {
+    fun titleIds(res: Resources): List<Int> {
         val names = if (this == LIBRARY) listOf(titleRes, "navigationbar_musicappitems_library_title") else listOf(titleRes)
-        return names.filter { it.isNotEmpty() }.mapNotNull { name ->
-            val id = res.getIdentifier(name, "string", Constants.SPOTIFY_PACKAGE)
-            if (id != 0) runCatching { res.getString(id) }.getOrNull() else null
-        }
+        return names.filter { it.isNotEmpty() }.map { res.getIdentifier(it, "string", Constants.SPOTIFY_PACKAGE) }.filter { it != 0 }
     }
 
     fun icon(context: Context, active: Boolean): Drawable {

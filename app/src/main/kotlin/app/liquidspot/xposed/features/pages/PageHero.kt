@@ -14,20 +14,18 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.view.View
 import android.widget.ImageView
-import app.liquidspot.xposed.theme.SpotifyTheme
 import kotlin.math.max
 
 class PageHero(private val host: View, private val artwork: ImageView) : Drawable() {
     private var image: Drawable? = null
     private var signature = 0
-    private val saved = Rect()
     private val bitmapPaint = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
     private val fadePaint = Paint()
     private val topPaint = Paint()
     private val src = Rect()
     private val dst = RectF()
     private var shaderSize = -1
-    private val background get() = if (SpotifyTheme.amoled) 0xFF000000.toInt() else 0xFF121212.toInt()
+    private val background = 0xFF000000.toInt()
 
     fun refresh() {
         val current = artwork.drawable?.takeUnless(::isPlaceholder)
@@ -74,12 +72,13 @@ class PageHero(private val host: View, private val artwork: ImageView) : Drawabl
             val scale = max(w / iw, size / ih)
             val dw = iw * scale
             val dh = ih * scale
-            val left = ((w - dw) / 2f).toInt()
-            val top = ((size - dh) / 2f).toInt()
-            saved.set(image.bounds)
-            image.setBounds(left, top, left + dw.toInt(), top + dh.toInt())
-            image.draw(canvas)
-            image.bounds = saved
+            val current = image.bounds
+            if (!current.isEmpty) {
+                canvas.translate((w - dw) / 2f, (size - dh) / 2f)
+                canvas.scale(dw / current.width(), dh / current.height())
+                canvas.translate(-current.left.toFloat(), -current.top.toFloat())
+                image.draw(canvas)
+            }
         }
         canvas.restore()
         ensureShaders(size)

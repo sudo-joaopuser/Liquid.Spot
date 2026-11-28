@@ -12,8 +12,8 @@ android {
         applicationId = "app.liquidspot"
         minSdk = 31
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.2.1-Stable"
+        versionCode = 4
+        versionName = "0.2.2-Stable"
 
         buildConfigField("String", "ORT_VERSION", "\"${libs.versions.onnxruntime.get()}\"")
 

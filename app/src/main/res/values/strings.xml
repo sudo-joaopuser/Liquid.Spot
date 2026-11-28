@@ -34,8 +34,6 @@
     <string name="feature_liquid_miniplayer_summary">Turns the mini player into a floating glass pill.</string>
     <string name="feature_liquid_player_title">Liquid Glass player</string>
     <string name="feature_liquid_player_summary">Full-screen player with blurred cover, glass buttons, the song\'s Canvas video and synced lyrics from 14 sources. Ads and podcasts keep Spotify\'s player.</string>
-    <string name="feature_amoled_title">AMOLED theme</string>
-    <string name="feature_amoled_summary">Turns Spotify\'s dark backgrounds into pure black, and the glass gets darker too. Restart Spotify to apply.</string>
     <string name="feature_accent_title">Change accent color</string>
     <string name="feature_accent_summary">Replaces Spotify\'s green (buttons, active icons, progress) with a color of your choice, including the glass screens.</string>
     <string name="pref_accent_title">Accent color</string>

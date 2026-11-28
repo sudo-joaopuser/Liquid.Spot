@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">Macht aus dem Mini-Player eine schwebende Glaspille.</string>
     <string name="feature_liquid_player_title">Liquid-Glass-Player</string>
     <string name="feature_liquid_player_summary">Vollbild-Player mit unscharfem Cover, Glasknöpfen, dem Canvas-Video des Songs und synchronisierten Songtexten aus 14 Quellen. Werbung und Podcasts behalten den Spotify-Player.</string>
-    <string name="feature_amoled_title">AMOLED-Design</string>
-    <string name="feature_amoled_summary">Macht die dunklen Hintergründe von Spotify reinschwarz, und auch das Glas wird dunkler. Starte Spotify neu, um es anzuwenden.</string>
     <string name="feature_accent_title">Akzentfarbe ändern</string>
     <string name="feature_accent_summary">Ersetzt das Grün von Spotify (Knöpfe, aktive Symbole, Fortschritt) durch eine Farbe deiner Wahl, auch auf den Glasbildschirmen.</string>
     <string name="pref_accent_title">Akzentfarbe</string>

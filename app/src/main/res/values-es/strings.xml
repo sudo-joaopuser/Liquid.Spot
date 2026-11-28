@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">Convierte el minirreproductor en una píldora de cristal flotante.</string>
     <string name="feature_liquid_player_title">Reproductor Liquid Glass</string>
     <string name="feature_liquid_player_summary">Reproductor a pantalla completa con portada desenfocada, botones de cristal, el vídeo Canvas de la canción y letras sincronizadas de 14 fuentes. Los anuncios y pódcasts usan el reproductor de Spotify.</string>
-    <string name="feature_amoled_title">Tema AMOLED</string>
-    <string name="feature_amoled_summary">Convierte los fondos oscuros de Spotify en negro puro, y el cristal también se oscurece. Reinicia Spotify para aplicarlo.</string>
     <string name="feature_accent_title">Cambiar el color de acento</string>
     <string name="feature_accent_summary">Sustituye el verde de Spotify (botones, iconos activos, progreso) por el color que elijas, también en las pantallas de cristal.</string>
     <string name="pref_accent_title">Color de acento</string>

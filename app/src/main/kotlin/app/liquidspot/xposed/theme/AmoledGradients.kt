@@ -39,7 +39,6 @@ internal object AmoledGradients {
             return
         }
         hooks.before(constructor) {
-            if (!SpotifyTheme.amoled) return@before
             if (arg<Float>(0) != arg<Float>(2)) return@before
             val colors = arg<LongArray?>(4) ?: return@before
             args[4] = if (isHeaderFade(colors)) {
@@ -54,7 +53,6 @@ internal object AmoledGradients {
             )
         }.getOrNull() ?: return
         hooks.before(intConstructor) {
-            if (!SpotifyTheme.amoled) return@before
             val colors = arg<IntArray?>(4) ?: return@before
             val mapped = IntArray(colors.size) { mapBase(colors[it]) }
             if (!mapped.contentEquals(colors)) args[4] = mapped
@@ -81,7 +79,7 @@ internal object AmoledGradients {
 
     private fun installHeaderBackgrounds(hooks: Hooks) {
         hooks.before(View::class.java.method("setBackgroundDrawable", Drawable::class.java)) {
-            if (!SpotifyTheme.amoled || args[0] == null) return@before
+            if (args[0] == null) return@before
             val view = thisObject as? View ?: return@before
             if (view.id != View.NO_ID && view.id in headerIds(view)) args[0] = null
         }

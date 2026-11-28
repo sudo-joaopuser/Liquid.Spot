@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">Transforma o mini player numa pílula de vidro flutuante.</string>
     <string name="feature_liquid_player_title">Player Liquid Glass</string>
     <string name="feature_liquid_player_summary">Player em tela cheia com capa desfocada, botões de vidro, o vídeo Canvas da música e letra sincronizada de 14 fontes. Anúncios e podcasts continuam no player do Spotify.</string>
-    <string name="feature_amoled_title">Tema AMOLED</string>
-    <string name="feature_amoled_summary">Deixa os fundos escuros do Spotify em preto puro, e o vidro fica mais escuro também. Reabra o Spotify para aplicar.</string>
     <string name="feature_accent_title">Trocar cor de destaque</string>
     <string name="feature_accent_summary">Troca o verde do Spotify (botões, ícones ativos, progresso) pela cor que você escolher, inclusive nas telas de vidro.</string>
     <string name="pref_accent_title">Cor de destaque</string>

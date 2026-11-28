@@ -10,5 +10,6 @@ object LiquidPagesFeature : Feature {
 
     override fun install(ctx: HookContext) {
         GlassUi.enablePages(ctx)
+        ComposeHooks.install(ctx)
     }
 }

@@ -38,9 +38,8 @@ object ThemePalette {
         0xFF2B2B2B to 0xFF171717,
     ).entries.associate { it.key.toInt() to it.value.toInt() }
 
-    fun build(amoled: Boolean, accent: Int?): Map<Int, Int> {
-        val map = HashMap<Int, Int>()
-        if (amoled) map.putAll(AMOLED)
+    fun build(accent: Int?): Map<Int, Int> {
+        val map = HashMap<Int, Int>(AMOLED)
         if (accent != null && accent != SPOTIFY_GREEN) {
             for (green in SPOTIFY_GREENS) map[green] = shiftLike(accent, SPOTIFY_GREEN, green)
         }

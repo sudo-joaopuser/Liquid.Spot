@@ -108,12 +108,15 @@ object NowPlayingStore {
             album = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM).orEmpty(),
             durationMs = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
             art = art,
-            artUri = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI)
+            artUri = metadata.getString(ART_HTTPS_URI)
+                ?: metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI)
                 ?: metadata.getString(MediaMetadata.METADATA_KEY_ART_URI),
             explicit = explicit,
         )
         val previous = track
-        track = if (previous != null && previous.key == next.key && next.art == null) next.copy(art = previous.art) else next
+        val keepArt = previous != null && previous.key == next.key && previous.art != null &&
+            (art == null || previous.art.width > art.width)
+        track = if (keepArt) next.copy(art = previous!!.art) else next
         if (previous?.key != next.key) Logger.d("Tocando: ${next.title} — ${next.artist} (${next.mediaId})")
         notifyListeners()
     }
@@ -151,6 +154,8 @@ object NowPlayingStore {
         if (index < 0) return null
         queue.getOrNull(index + direction)?.description
     }.getOrNull()
+
+    private const val ART_HTTPS_URI = "com.spotify.music.extra.ART_HTTPS_URI"
 
     private val EXPLICIT_KEYS = listOf(
         "android.media.IS_EXPLICIT",

@@ -2,6 +2,7 @@ package app.liquidspot.xposed.features.navbar
 
 import android.app.Activity
 import android.graphics.Outline
+import android.graphics.Rect
 import android.os.SystemClock
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -23,6 +24,7 @@ import app.liquidspot.xposed.ui.PlayerIcon
 import app.liquidspot.xposed.ui.glass.BackdropSource
 import app.liquidspot.xposed.ui.glass.GlassDrawable
 import app.liquidspot.xposed.util.Logger
+import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -36,13 +38,11 @@ class GlassUiController(private val activity: Activity) {
     private var insetsSpace: View? = null
     private var overlay: LiquidNavBarView? = null
     private var tabs: ComposeTabs? = null
-    private val titles by lazy { NavTab.entries.associateWith { it.titles(activity.resources) } }
 
     private var navAttempts = 0
     private var navGaveUp = false
     private var lastNavAttempt = 0L
     private var lastPoll = 0L
-    private var noneSelected = 0
 
     private val miniPlayers = WeakHashMap<View, MiniPlayerState>()
 
@@ -54,6 +54,8 @@ class GlassUiController(private val activity: Activity) {
         var compact = false
         var minimal = false
         val hidden = ArrayList<View>()
+        val concealed = ArrayList<WeakReference<View>>()
+        val parts = HashMap<Int, WeakReference<View>>()
         val textSizes = WeakHashMap<android.widget.TextView, Float>()
     }
 
@@ -111,6 +113,7 @@ class GlassUiController(private val activity: Activity) {
 
     fun stop() {
         decor.removeCallbacks(pageScan)
+        decor.removeCallbacks(navRetry)
         pages.values.toList().forEach { it.stop() }
         pages.clear()
         decor.viewTreeObserver.removeOnGlobalLayoutListener(layoutListener)
@@ -232,10 +235,27 @@ class GlassUiController(private val activity: Activity) {
         }
     }
 
+    private var navRetryQueued = false
+    private val startedAt = SystemClock.uptimeMillis()
+    private val navRetry = Runnable {
+        navRetryQueued = false
+        guard("barra") { if (GlassUi.navBarEnabled && !navGaveUp && navBar?.isAttachedToWindow != true) setupNavBar() }
+    }
+
+    private fun queueNavRetry() {
+        if (navRetryQueued || SystemClock.uptimeMillis() - startedAt > NAV_RETRY_WINDOW_MS) return
+        navRetryQueued = true
+        decor.postDelayed(navRetry, RETRY_INTERVAL_MS)
+    }
+
     private fun setupNavBar() {
         val now = SystemClock.uptimeMillis()
-        if (now - lastNavAttempt < RETRY_INTERVAL_MS) return
+        if (now - lastNavAttempt < RETRY_INTERVAL_MS) {
+            queueNavRetry()
+            return
+        }
         lastNavAttempt = now
+        queueNavRetry()
 
         val nav = bars.find<View>(decor, bars.navigationBar) ?: return
         val main = nav.parent as? ViewGroup ?: return
@@ -243,9 +263,9 @@ class GlassUiController(private val activity: Activity) {
         val source = ensureBackdrop() ?: return
 
         UiDumper.dumpOnce(nav, "barra de abas do Spotify")
-        val reader = ComposeTabs(nav)
-        if (!reader.refresh(titles)) {
-            if (++navAttempts >= MAX_NAV_ATTEMPTS) {
+        val reader = ComposeTabs(activity.resources)
+        if (!reader.refresh()) {
+            if (NavTabsHook.failed && ++navAttempts >= MAX_NAV_ATTEMPTS) {
                 navGaveUp = true
                 Logger.w("Barra Liquid Glass: abas do Spotify não encontradas, mantendo a barra original")
             }
@@ -279,14 +299,13 @@ class GlassUiController(private val activity: Activity) {
 
     private fun onTabClicked(tab: NavTab) {
         val reader = tabs ?: return
-        if (!reader.click(tab)) {
-            reader.refresh(titles)
-            if (!reader.click(tab)) Logger.w("Não foi possível abrir a aba $tab")
-        }
+        if (!reader.click(tab)) Logger.w("Não foi possível abrir a aba $tab")
         lastPoll = 0L
     }
 
     private fun onPreDraw() {
+        if (GlassUi.navBarEnabled && !navGaveUp && navBar?.isAttachedToWindow != true) setupNavBar()
+        if (GlassUi.miniPlayerEnabled && miniPlayers.isEmpty()) styleMiniPlayer()
         val bar = overlay
         val nav = navBar
         if (bar != null && nav != null) followNavBar(bar, nav)
@@ -297,8 +316,21 @@ class GlassUiController(private val activity: Activity) {
         }
     }
 
+    private val found = HashMap<Int, WeakReference<View>>()
+    private val missedAt = HashMap<Int, Long>()
+
+    private fun cached(id: Int): View? {
+        if (id == 0) return null
+        found[id]?.get()?.let { if (it.isAttachedToWindow) return it }
+        val now = SystemClock.uptimeMillis()
+        if (now - (missedAt[id] ?: 0L) < LOOKUP_RETRY_MS) return null
+        val view = bars.find<View>(decor, id)
+        if (view == null) missedAt[id] = now else found[id] = WeakReference(view)
+        return view
+    }
+
     private fun miniPlayerView(): View? =
-        bars.find<View>(decor, bars.nowPlayingBar)?.takeIf { it.isShown && it.height > 0 && miniPlayers.containsKey(it) }
+        cached(bars.nowPlayingBar)?.takeIf { it.isShown && it.height > 0 && miniPlayers.containsKey(it) }
 
     private fun playerShown(): Boolean = players.keys.any { it.isShown }
 
@@ -364,7 +396,7 @@ class GlassUiController(private val activity: Activity) {
         followCollapse(bar, nav)
         if (nav.alpha != 0f) nav.alpha = 0f
         for (id in bars.bottomGradients) {
-            bars.find<View>(decor, id)?.let { if (it.alpha != 0f) it.alpha = 0f }
+            cached(id)?.let { if (it.alpha != 0f) it.alpha = 0f }
         }
 
         val visible = nav.isAttachedToWindow && nav.visibility == View.VISIBLE
@@ -383,24 +415,12 @@ class GlassUiController(private val activity: Activity) {
         val now = SystemClock.uptimeMillis()
         if (now - lastPoll >= POLL_INTERVAL_MS) {
             lastPoll = now
-            val reader = tabs ?: return
-            try {
-                val selected = reader.selected()
-                if (selected != null) {
-                    noneSelected = 0
-                    bar.selectTab(selected)
-                } else if (++noneSelected >= NONE_SELECTED_REFRESH) {
-                    noneSelected = 0
-                    reader.refresh(titles)
-                }
-            } catch (_: IllegalStateException) {
-                reader.refresh(titles)
-            }
+            tabs?.selected()?.let { bar.selectTab(it) }
         }
     }
 
     private fun styleMiniPlayer() {
-        val npb = bars.find<View>(decor, bars.nowPlayingBar) ?: return
+        val npb = cached(bars.nowPlayingBar) ?: return
         if (miniPlayers.containsKey(npb)) return
         val source = ensureBackdrop() ?: return
 
@@ -439,26 +459,39 @@ class GlassUiController(private val activity: Activity) {
     private val playPauseId = spotifyId("play_pause_button")
     private val carouselId = spotifyId("tracks_carousel_view")
 
+    private fun part(group: ViewGroup, state: MiniPlayerState, id: Int): View? {
+        if (id == 0) return null
+        state.parts[id]?.get()?.let { if (it.isAttachedToWindow) return it }
+        val view = bars.find<View>(group, id) ?: return null
+        state.parts[id] = WeakReference(view)
+        return view
+    }
+
     private fun applyCompact(npb: View, state: MiniPlayerState) {
         val group = npb as? ViewGroup ?: return
-        val connect = bars.find<View>(group, connectId)
-        val add = bars.find<View>(group, addId)
-        val play = bars.find<View>(group, playPauseId)
+        val connect = part(group, state, connectId)
+        val add = part(group, state, addId)
+        val play = part(group, state, playPauseId)
         val parent = npb.parent as? ViewGroup
         if ((overlay?.collapse ?: 0f) > MINIMAL_AT) {
             enterMinimal(group, state, connect, add, play)
             return
         }
         if (state.minimal) leaveMinimal(state)
-        val usable = GlassUi.compactMiniPlayer && add != null && play != null && add.width > 0 && play.width > 0 &&
+        val usable = GlassUi.compactMiniPlayer && add != null && play != null &&
             parent != null && (parent is FrameLayout || parent.javaClass.name.contains("ConstraintLayout"))
         if (!usable) {
             if (state.compact) leaveCompact(state, connect, add, play)
             return
         }
         state.compact = true
-        if (connect != null && connect.visibility == View.VISIBLE) connect.visibility = View.INVISIBLE
+        if (connect != null) {
+            if (connect.visibility == View.VISIBLE) connect.visibility = View.INVISIBLE
+            conceal(connect, state)
+        }
         if (add.visibility == View.VISIBLE) add.visibility = View.INVISIBLE
+        conceal(add, state)
+        if (add.width == 0 || play.width == 0) return
         val shift = (add.left - play.left).toFloat()
         if (play.translationX != shift) play.translationX = shift
 
@@ -497,6 +530,7 @@ class GlassUiController(private val activity: Activity) {
                 v.visibility = View.GONE
                 if (v !in state.hidden) state.hidden += v
             }
+            conceal(v, state)
         }
         if (play != null && play.translationX != 0f) play.translationX = 0f
         val carousel = bars.find<ViewGroup>(npb, carouselId) ?: return
@@ -514,8 +548,20 @@ class GlassUiController(private val activity: Activity) {
         if (view is ViewGroup) for (i in 0 until view.childCount) shrinkTexts(view.getChildAt(i), state)
     }
 
+    private fun conceal(view: View, state: MiniPlayerState) {
+        if (state.concealed.any { it.get() === view }) return
+        view.clipBounds = Rect()
+        state.concealed += WeakReference(view)
+    }
+
+    private fun reveal(state: MiniPlayerState) {
+        for (ref in state.concealed) ref.get()?.clipBounds = null
+        state.concealed.clear()
+    }
+
     private fun leaveMinimal(state: MiniPlayerState) {
         state.minimal = false
+        reveal(state)
         state.hidden.forEach { if (it.visibility == View.GONE) it.visibility = View.VISIBLE }
         state.hidden.clear()
         for ((text, size) in state.textSizes) text.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
@@ -524,6 +570,7 @@ class GlassUiController(private val activity: Activity) {
 
     private fun leaveCompact(state: MiniPlayerState, connect: View?, add: View?, play: View?) {
         state.compact = false
+        reveal(state)
         if (connect?.visibility == View.INVISIBLE) connect.visibility = View.VISIBLE
         if (add?.visibility == View.INVISIBLE) add.visibility = View.VISIBLE
         play?.translationX = 0f
@@ -569,13 +616,14 @@ class GlassUiController(private val activity: Activity) {
         const val MINIMAL_AT = 0.5f
         const val MINIMAL_TEXT_SCALE = 0.85f
         const val HORIZONTAL_RATIO = 1.2f
-        const val RETRY_INTERVAL_MS = 500L
+        const val RETRY_INTERVAL_MS = 32L
+        const val NAV_RETRY_WINDOW_MS = 15_000L
         const val PAGE_SCAN_MS = 150L
         const val BACK_BUTTON_CLASS = "BackButtonView"
         const val FRAGMENT_HOST_CLASS = "androidx.fragment.app.FragmentContainerView"
         const val MAX_NAV_ATTEMPTS = 20
         const val POLL_INTERVAL_MS = 200L
-        const val NONE_SELECTED_REFRESH = 5
+        const val LOOKUP_RETRY_MS = 32L
 
         val PILL_OUTLINE = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {

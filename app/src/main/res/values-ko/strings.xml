@@ -33,8 +33,6 @@
     <string name="feature_liquid_miniplayer_summary">미니 플레이어를 떠 있는 유리 알약으로 바꿉니다.</string>
     <string name="feature_liquid_player_title">Liquid Glass 플레이어</string>
     <string name="feature_liquid_player_summary">흐린 앨범 커버, 유리 버튼, 곡의 Canvas 영상, 14개 소스의 동기화 가사를 갖춘 전체 화면 플레이어. 광고와 팟캐스트는 Spotify 플레이어를 그대로 씁니다.</string>
-    <string name="feature_amoled_title">AMOLED 테마</string>
-    <string name="feature_amoled_summary">Spotify의 어두운 배경을 완전한 검정으로 바꾸고 유리도 더 어두워집니다. 적용하려면 Spotify를 다시 시작하세요.</string>
     <string name="feature_accent_title">강조 색상 변경</string>
     <string name="feature_accent_summary">Spotify의 초록색(버튼, 활성 아이콘, 진행 표시)을 원하는 색으로 바꿉니다. 유리 화면에도 적용됩니다.</string>
     <string name="pref_accent_title">강조 색상</string>
